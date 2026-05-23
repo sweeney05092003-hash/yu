@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>埔心鄰長 太平山觀摩活動小幫手</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", -apple-system, sans-serif;
+            background-color: #f8f9fa;
+            font-size: 1.05rem;
+            color: #333;
+        }
+        /* 頂部深綠色 Header 風格 */
+        .custom-banner {
+            background-color: #1b4d3e;
+            color: white;
+            padding: 30px 20px;
+            border-bottom: 5px solid #ffc107;
+        }
+        .custom-banner h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .weather-link {
+            color: #ffc107;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 0.95rem;
+        }
+        .weather-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 導覽分頁按鈕風格 */
+        .nav-pills .nav-link {
+            color: #495057;
+            font-weight: bold;
+            background-color: #fff;
+            margin: 5px;
+            border: 1px solid #dee2e6;
+            font-size: 1.05rem;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #1b4d3e;
+            color: white;
+            border-color: #1b4d3e;
+        }
+        
+        /* 分頁顯示控制 */
+        .my-custom-tab {
+            display: none;
+        }
+        .my-custom-tab.active {
+            display: block !important;
+        }
+        
+        /* 卡片與行程排版 */
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .day-header {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1b4d3e;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1b4d3e;
+        }
+        .schedule-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+        .schedule-time-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .schedule-time {
+            color: #1b4d3e;
+            margin-right: 8px;
+        }
+        .schedule-desc {
+            font-size: 1rem;
+            color: #718096;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+        
+        /* 搜尋與高亮 */
+        .highlight-search {
+            background-color: #ffeb3b !important;
+            font-weight: bold;
+            color: #000 !important;
+            border: 2px solid #ff9800 !important;
+        }
+        .search-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            background-color: #f8f9fa;
+            padding: 12px 0;
+        }
+        
+        /* 遊覽車座位排版 */
+        .bus-layout {
+            background-color: #e9ecef;
+            padding: 20px 15px;
+            border-radius: 15px;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+        .seat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .seat-pair {
+            display: flex;
+            gap: 8px;
+        }
+        .seat {
+            width: 90px;
+            height: 52px;
+            background-color: #fff;
+            border: 2px solid #6c757d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .seat.door { background-color: #17a2b8; color: white; border-color: #17a2b8; width: 60px; height: 45px; font-size: 0.85rem; }
+        .seat.em-door { background-color: #dc3545; color: white; border-color: #dc3545; width: 60px; height: 45px; font-size: 0.85rem; }
+        .seat.empty { background-color: transparent; border: 2px dashed #ccc; color: #ccc; }
+        
+        /* 跳出視窗樣式 */
+        .modal-info-box {
+            background-color: #e6f4ea;
+            border-left: 5px solid #1e7e34;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="custom-banner">
+    <div class="container">
+        <h1>埔心里鄰長觀摩活動</h1>
+        <p class="mb-2" style="opacity: 0.9;">宜蘭太平山、翠峰湖、鳳梨屋二日遊</p>
+        <p class="mb-3" style="font-size: 0.95rem; opacity: 0.8;"><i class="fa-solid fa-calendar-days"></i> 出發日期：115年5月29日、30日 (星期五、六)</p>
+        <div>
+            <a href="https://www.cwa.gov.tw/V8/C/W/Town/Town.html?ID=1000210" target="_blank" class="weather-link"><i class="fa-solid fa-cloud-sun-rain"></i> 5/29 太平山天氣預報</a>
+            <a href="https://www.cwa.gov.tw/V8/C/W/Town/Town.html?ID=1000201" target="_blank" class="weather-link"><i class="fa-solid fa-cloud-sun"></i> 5/30 羅東天氣預報</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-3 mb-5">
+    
+    <div class="search-sticky">
+        <div class="input-group">
+            <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+            <input type="text" id="nameSearch" class="form-control form-control-lg" placeholder="輸入名字（輸入1-3個字皆可）即可彈出資訊..." oninput="searchName()">
+            <button class="btn btn-secondary" onclick="clearSearch()">清除</button>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills nav-fill my-3" id="tourTab">
+        <li class="nav-item">
+            <button class="nav-link active" id="btn-schedule" onclick="changeCustomTab('schedule')"><i class="fa-solid fa-calendar-days"></i> 詳細行程</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="btn-bus" onclick="changeCustomTab('bus')"><i class="fa-solid fa-bus"></i> 遊覽車座位</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="btn-restaurant" onclick="changeCustomTab('restaurant')"><i class="fa-solid fa-utensils"></i> 餐廳桌次</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="btn-room" onclick="changeCustomTab('room')"><i class="fa-solid fa-hotel"></i> 房間分配</button>
+        </li>
+    </ul>
+
+    <div id="customTabPanels">
+        
+        <div class="my-custom-tab active" id="pane-schedule">
+            <div class="info-card">
+                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-circle-info text-success"></i> 出發重要資訊</h5>
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <small class="text-muted d-block">集合時間</small>
+                        <strong>06:15</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <small class="text-muted d-block">集合地點</small>
+                        <strong>土地公廟</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <small class="text-muted d-block">出發時間</small>
+                        <strong>06:30 (準時發車)</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <small class="text-muted d-block">第二天服裝</small>
+                        <strong class="text-danger">請穿著【團體服】</strong>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-top text-muted" style="font-size: 0.95rem;">
+                    <i class="fa-solid fa-suitcase-rolling"></i> <strong>隨身必帶：</strong>暈車藥、口罩、健保卡、防曬陽傘、帽子。
+                </div>
+            </div>
+
+            <div class="day-header"><i class="fa-solid fa-sun text-warning"></i> Day 1：115年5月29日 (星期五)</div>
+            <div class="info-card py-1">
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">06:15</span> 土地公廟集合</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">06:30</span> 里辦公處出發</div>
+                    <div class="schedule-desc">搭乘舒適遊覽車出發，沿途欣賞國道風光。車上安排卡拉OK歡唱與熱門影片欣賞。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">上午</span> 經頭城休息區 ➔ 至英士休息站</div>
+                    <div class="schedule-desc">抵達英士休息站後，轉搭 9人座接駁車 前往主要景點。探訪【見晴懷古步道】，漫步於新闢人車分道（長約1.3公里，步行約20-25分），飽覽舊鐵道與迷霧森林奇景。</div>
+                    <img src="https://images.unsplash.com/photo-1589136777351-fdc9c9c8536b?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded my-2 shadow-sm" alt="見晴懷古步道" style="max-height: 200px; width: 100%; object-fit: cover;">
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">中午</span> 翠峰湖畔享用山上便當</div>
+                    <div class="schedule-desc">前往台灣最大高山湖泊【翠峰湖】（海拔1,840公尺），欣賞變化萬千的湖光山色，並於山上輕鬆享用美味便當。</div>
+                    <img src="https://images.unsplash.com/photo-1624513904183-fca25e2d6778?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded my-2 shadow-sm" alt="翠峰湖" style="max-height: 200px; width: 100%; object-fit: cover;">
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">下午</span> 太平山國家森林遊樂區</div>
+                    <div class="schedule-desc">盡情吸收充沛的芬多精與陰離子。※蹦蹦車重要說明：需現場購票（限定1人買10張），現場若有票即安排搭乘，無票則改為森林漫步行程。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">晚上</span> 入住英仕山莊 ➔ 晚餐與晚會</div>
+                    <div class="schedule-desc">沿途下山入住【英仕山莊】。於餐廳享用澎湃晚餐（10人一桌附2瓶飲料）。晚餐後特別安排卡拉OK歡唱晚會，並貼心招待美味點心！</div>
+                </div>
+            </div>
+
+            <div class="day-header"><i class="fa-solid fa-cloud-sun text-info"></i> Day 2：115年5月30日 (星期六)</div>
+            <div class="info-card py-1">
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">07:00</span> 晨喚、享用早餐</div>
+                    <div class="schedule-desc">早安！請至山莊 1 樓餐廳享用豐富早餐，補滿體力。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">08:00</span> 準時退房</div>
+                    <div class="schedule-desc">請收拾好行李辦理退房，準時離開英仕山莊。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">上午</span> 九寮溪自然步道</div>
+                    <div class="schedule-desc">生態步道平坦好走，沿著清澈的九寮溪而建（水質源自雪山山脈，冰涼清澈）。終點可觀賞氣勢磅礴的九寮溪瀑布（戈霸瀑布）。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">中午</span> 餐廳享用風味午餐</div>
+                    <div class="schedule-desc">下山後至在地餐廳享用精緻豐富的午餐桌菜。</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">下午</span> 網美聖地：鳳梨屋水上莊園</div>
+                    <div class="schedule-desc">超人氣打卡園區！規劃極為漂亮，包含著名的水濂瀑布鞦韆、浪漫月亮躺椅等豐富場景，隨手拍都好看。</div>
+                    <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded my-2 shadow-sm" alt="鳳梨屋莊園" style="max-height: 200px; width: 100%; object-fit: cover;">
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time-title"><span class="schedule-time">傍晚</span> 經雪山隧道 ➔ 晚餐 ➔ 快樂賦歸</div>
+                    <div class="schedule-desc">經雪山隧道北返，沿途享用美味晚餐。圓滿結束兩天一夜充實的觀摩活動，快樂回溫暖的家！</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-custom-tab" id="pane-bus">
+            <div class="alert alert-secondary text-center fw-bold">遊覽車座位表 (42座 豪華座艙)</div>
+            <div class="bus-layout search-area">
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat bg-secondary text-white" style="border:none;">駕駛員</div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat door">前門</div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">劉玉田</span></div>
+                        <div class="seat"><span class="name-cell">呂燕玉</span><br><small class="text-danger">(素)</small></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">游源隆</span></div>
+                        <div class="seat"><span class="name-cell">盧宜芳</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">盧宜芳</span></div>
+                        <div class="seat bg-light text-muted" style="border: 2px dashed #ccc;"></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">蔡美足</span></div>
+                        <div class="seat"><span class="name-cell">胡玉蓮</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李傳培</span></div>
+                        <div class="seat"><span class="name-cell">賴矜桂</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李鳳玉</span></div>
+                        <div class="seat"><span class="name-cell">毛瑜琳</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">郭秋雪</span></div>
+                        <div class="seat"><span class="name-cell">戴美菊</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李碧雲</span></div>
+                        <div class="seat"><span class="name-cell">郭秀霞</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李玉貴</span></div>
+                        <div class="seat"><span class="name-cell">呂學修</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">游素月</span></div>
+                        <div class="seat"><span class="name-cell">廖又賢</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair"><div class="seat em-door">安全門</div></div>
+                    <div class="seat-pair"><div class="seat bg-light text-muted" style="border: 2px dashed #ccc; width: 188px;">走道空間</div></div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">王文亮</span></div>
+                        <div class="seat"><span class="name-cell">鄭淑娟</span></div>
+                    </div>
+                    <div class="seat-pair"><div class="seat door">後門</div></div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">游宏鈞</span></div>
+                        <div class="seat"><span class="name-cell">黃家羚</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">張舟輕</span></div>
+                        <div class="seat"><span class="name-cell">陳正則</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">詹翠翠</span></div>
+                        <div class="seat"><span class="name-cell">游獲廣</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">張遠福</span></div>
+                        <div class="seat"><span class="name-cell">傅新媚</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李應章</span></div>
+                        <div class="seat"><span class="name-cell">簡松勇</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李政益</span></div>
+                        <div class="seat"><span class="name-cell">王富美</span></div>
+                    </div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">倪惠英</span></div>
+                        <div class="seat"><span class="name-cell">呂雅筑</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">游源和</span></div>
+                        <div class="seat"><span class="name-cell">邱明瑞</span></div>
+                    </div>
+                </div>
+
+                <div class="seat-row">
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">李政村</span></div>
+                        <div class="seat"><span class="name-cell">黃慧俊</span></div>
+                    </div>
+                    <div class="seat-pair">
+                        <div class="seat"><span class="name-cell">沈原祿</span></div>
+                        <div class="seat"><span class="name-cell">沈睿恩</span></div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="my-custom-tab" id="pane-restaurant">
+            <div class="alert alert-warning text-dark text-center fw-bold"><strong>素食人員提醒：</strong>呂燕玉 乙位（安排於第三桌隨桌）</div>
+            <div class="row g-3 search-area">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-success h-100">
+                        <div class="card-header bg-success text-white text-center">第一桌</div>
+                        <ul class="list-group list-group-flush text-center fw-bold">
+                            <li class="list-group-item"><span class="name-cell">游源隆</span></li>
+                            <li class="list-group-item"><span class="name-cell">盧宜芳</span></li>
+                            <li class="list-group-item"><span class="name-cell">張舟輕</span></li>
+                            <li class="list-group-item"><span class="name-cell">陳正則</span></li>
+                            <li class="list-group-item"><span class="name-cell">張遠福</span></li>
+                            <li class="list-group-item"><span class="name-cell">傅新媚</span></li>
+                            <li class="list-group-item"><span class="name-cell">王文亮</span></li>
+                            <li class="list-group-item"><span class="name-cell">鄭淑娟</span></li>
+                            <li class="list-group-item"><span class="name-cell">簡松勇</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-primary h-100">
+                        <div class="card-header bg-primary text-white text-center">第二桌</div>
+                        <ul class="list-group list-group-flush text-center fw-bold">
+                            <li class="list-group-item"><span class="name-cell">李傳培</span></li>
+                            <li class="list-group-item"><span class="name-cell">賴矜桂</span></li>
+                            <li class="list-group-item"><span class="name-cell">李政村</span></li>
+                            <li class="list-group-item"><span class="name-cell">黃慧俊</span></li>
+                            <li class="list-group-item"><span class="name-cell">李玉貴</span></li>
+                            <li class="list-group-item"><span class="name-cell">呂學修</span></li>
+                            <li class="list-group-item"><span class="name-cell">李政益</span></li>
+                            <li class="list-group-item"><span class="name-cell">王富美</span></li>
+                            <li class="list-group-item"><span class="name-cell">沈原祿</span></li>
+                            <li class="list-group-item"><span class="name-cell">沈睿恩</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-info h-100">
+                        <div class="card-header bg-info text-dark text-center">第三桌</div>
+                        <ul class="list-group list-group-flush text-center fw-bold">
+                            <li class="list-group-item"><span class="name-cell">倪惠英</span></li>
+                            <li class="list-group-item"><span class="name-cell">呂雅筑</span></li>
+                            <li class="list-group-item"><span class="name-cell">李應章</span></li>
+                            <li class="list-group-item"><span class="name-cell">游素月</span></li>
+                            <li class="list-group-item"><span class="name-cell">廖又賢</span></li>
+                            <li class="list-group-item"><span class="name-cell">劉玉田</span></li>
+                            <li class="list-group-item"><span class="name-cell">李碧雲</span></li>
+                            <li class="list-group-item"><span class="name-cell">郭秀霞</span></li>
+                            <li class="list-group-item"><span class="name-cell">郭秋雪</span></li>
+                            <li class="list-group-item"><span class="name-cell">戴美菊</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-warning h-100">
+                        <div class="card-header bg-warning text-dark text-center">第四桌</div>
+                        <ul class="list-group list-group-flush text-center fw-bold">
+                            <li class="list-group-item"><span class="name-cell">游源和</span></li>
+                            <li class="list-group-item"><span class="name-cell">邱明瑞</span></li>
+                            <li class="list-group-item"><span class="name-cell">游獲廣</span></li>
+                            <li class="list-group-item"><span class="name-cell">詹翠翠</span></li>
+                            <li class="list-group-item"><span class="name-cell">游宏鈞</span></li>
+                            <li class="list-group-item"><span class="name-cell">黃家羚</span></li>
+                            <li class="list-group-item"><span class="name-cell">蔡美足</span></li>
+                            <li class="list-group-item"><span class="name-cell">胡玉蓮</span></li>
+                            <li class="list-group-item"><span class="name-cell">李鳳玉</span></li>
+                            <li class="list-group-item"><span class="name-cell">毛瑜琳</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-custom-tab" id="pane-room">
+            <div class="alert alert-success text-center">住宿：英仕山莊 房間分配表</div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 search-area">
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">游源隆</span> ＆ <span class="name-cell">盧宜芳</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">張舟輕</span> ＆ <span class="name-cell">陳正則</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">張遠福</span> ＆ <span class="name-cell">傅新媚</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">王文亮</span> ＆ <span class="name-cell">鄭淑娟</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">簡松勇</span> ＆ <span class="name-cell">李應章</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李傳培</span> ＆ <span class="name-cell">賴矜桂</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李政村</span> ＆ <span class="name-cell">黃慧俊</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李玉貴</span> ＆ <span class="name-cell">呂學修</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">呂燕玉</span> ＆ <span class="name-cell">劉玉田</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">沈原祿</span> ＆ <span class="name-cell">沈睿恩</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">倪惠英</span> ＆ <span class="name-cell">呂雅筑</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">游素月</span> ＆ <span class="name-cell">廖又賢</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李政益</span> ＆ <span class="name-cell">王富美</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李碧雲</span> ＆ <span class="name-cell">郭秀霞</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">郭秋雪</span> ＆ <span class="name-cell">戴美菊</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">游源和</span> ＆ <span class="name-cell">邱明瑞</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">游獲廣</span> ＆ <span class="name-cell">詹翠翠</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">游宏鈞</span> ＆ <span class="name-cell">黃家羚</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">蔡美足</span> ＆ <span class="name-cell">胡玉蓮</span></div></div></div>
+                <div class="col"><div class="card h-100"><div class="card-body text-center fw-bold text-dark d-flex align-items-center justify-content-center"><span class="name-cell">李鳳玉</span> ＆ <span class="name-cell">毛瑜琳</span></div></div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="searchResultModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div class="modal-header text-white" style="background-color: #1b4d3e; border-radius: 12px 12px 0 0;">
+                <h5 class="modal-title fw-bold" id="modalTargetName">查詢結果</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4" id="modalInfoContent" style="font-size: 1.15rem; font-weight: bold; color: #2d3748;">
+                </div>
+            <div class="modal-footer" style="border: none;">
+                <button type="button" class="btn text-white fw-bold px-4" style="background-color: #1b4d3e;" data-bs-dismiss="modal">知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 完整活動資料庫 (模糊比對系統)
+    const tourDatabase = {
+        "游源隆": { bus: "第 1 排 (右側靠窗)", table: "第一桌", room: "游源隆 ＆ 盧宜芳" },
+        "盧宜芳": { bus: "第 1 排 (右側走道) 與 第 2 排 (左側單人座)", table: "第一桌", room: "游源隆 ＆ 盧宜芳" },
+        "張舟輕": { bus: "第 7 排 (右側走道)", table: "第一桌", room: "張舟輕 ＆ 陳正則" },
+        "陳正則": { bus: "第 7 排 (右側靠窗)", table: "第一桌", room: "張舟輕 ＆ 陳正則" },
+        "張遠福": { bus: "第 8 排 (右側走道)", table: "第一桌", room: "張遠福 ＆ 傅新媚" },
+        "傅新媚": { bus: "第 8 排 (右側靠窗)", table: "第一桌", room: "張遠福 ＆ 傅新媚" },
+        "王文亮": { bus: "第 6 排 (左側走道，緊鄰後門)", table: "第一桌", room: "王文亮 ＆ 鄭淑娟" },
+        "鄭淑娟": { bus: "第 6 排 (左側靠窗)", table: "第一桌", room: "王文亮 ＆ 鄭淑娟" },
+        "簡松勇": { bus: "第 9 排 (左側靠窗)", table: "第一桌", room: "簡松勇 ＆ 李應章" },
+        
+        "李傳培": { bus: "第 3 排 (左側走道)", table: "第二桌", room: "李傳培 ＆ 賴矜桂" },
+        "賴矜桂": { bus: "第 3 排 (左側靠窗)", table: "第二桌", room: "李傳培 ＆ 賴矜桂" },
+        "李政村": { bus: "最後一排 (左側走道)", table: "第二桌", room: "李政村 ＆ 黃慧俊" },
+        "黃慧俊": { bus: "最後一排 (左側靠窗)", table: "第二桌", room: "李政村 ＆ 黃慧俊" },
+        "李玉貴": { bus: "第 5 排 (左側走道)", table: "第二桌", room: "李玉貴 ＆ 呂學修" },
+        "呂學修": { bus: "第 5 排 (左側靠窗)", table: "第二桌", room: "李玉貴 ＆ 呂學修" },
+        "李政益": { bus: "第 9 排 (右側走道)", table: "第二桌", room: "李政益 ＆ 王富美" },
+        "王富美": { bus: "第 9 排 (右側靠窗)", table: "第二桌", room: "李政益 ＆ 王富美" },
+        "沈原祿": { bus: "最後一排 (右側走道)", table: "第二桌", room: "沈原祿 ＆ 沈睿恩" },
+        "沈睿恩": { bus: "最後一排 (右側靠窗)", table: "第二桌", room: "沈原祿 ＆ 沈睿恩" },
+        
+        "倪惠英": { bus: "第 10 排 (左側走道)", table: "第三桌", room: "倪惠英 ＆ 呂雅筑" },
+        "呂雅筑": { bus: "第 10 排 (左側靠窗)", table: "第三桌", room: "倪惠英 ＆ 呂雅筑" },
+        "李應章": { bus: "第 9 排 (左側走道)", table: "第三桌", room: "簡松勇 ＆ 李應章" },
+        "游素月": { bus: "第 5 排 (右側靠窗)", table: "第三桌", room: "游素月 ＆ 廖又賢" },
+        "廖又賢": { bus: "第 5 排 (右側走道)", table: "第三桌", room: "游素月 ＆ 廖又賢" },
+        "劉玉田": { bus: "第 1 排 (左側走道)", table: "第三桌", room: "呂燕玉 ＆ 劉玉田" },
+        "呂燕玉": { bus: "第 1 排 (左側靠窗，素食)", table: "第三桌 (素食隨桌)", room: "呂燕玉 ＆ 劉玉田" },
+        "李碧雲": { bus: "第 4 排 (右側走道)", table: "第三桌", room: "李碧雲 ＆ 郭秀霞" },
+        "郭秀霞": { bus: "第 4 排 (右側靠窗)", table: "第三桌", room: "李碧雲 ＆ 郭秀霞" },
+        "郭秋雪": { bus: "第 4 排 (左側走道)", table: "第三桌", room: "郭秋雪 ＆ 戴美菊" },
+        "戴美菊": { bus: "第 4 排 (左側靠窗)", table: "第三桌", room: "郭秋雪 ＆ 戴美菊" },
+        
+        "游源和": { bus: "第 10 排 (右側走道)", table: "第四桌", room: "游源和 ＆ 邱明瑞" },
+        "邱明瑞": { bus: "第 10 排 (右側靠窗)", table: "第四桌", room: "游源和 ＆ 邱明瑞" },
+        "游獲廣": { bus: "第 8 排 (左側靠窗)", table: "第四桌", room: "游獲廣 ＆ 詹翠翠" },
+        "詹翠翠": { bus: "第 8 排 (左側走道)", table: "第四桌", room: "游獲廣 ＆ 詹翠翠" },
+        "游宏鈞": { bus: "第 7 排 (左側走道)", table: "第四桌", room: "游宏鈞 ＆ 黃家羚" },
+        "黃家羚": { bus: "第 7 排 (左側靠窗)", table: "第四桌", room: "游宏鈞 ＆ 黃家羚" },
+        "蔡美足": { bus: "第 2 排 (右側走道)", table: "第四桌", room: "蔡美足 ＆ 胡玉蓮" },
+        "胡玉蓮": { bus: "第 2 排 (右側靠窗)", table: "第四桌", room: "蔡美足 ＆ 胡玉蓮" },
+        "李鳳玉": { bus: "第 3 排 (左側走道)", table: "第四桌", room: "李鳳玉 ＆ 毛瑜琳" },
+        "毛瑜琳": { bus: "第 3 排 (左側靠窗)", table: "第四桌", room: "李鳳玉 ＆ 毛瑜琳" }
+    };
+
+    // 導覽分頁切換邏輯
+    function changeCustomTab(tabTargetId) {
+        var tabPanels = document.querySelectorAll('.my-custom-tab');
+        tabPanels.forEach(function(panel) {
+            panel.classList.remove('active');
+        });
+
+        var tabButtons = document.querySelectorAll('.nav-link');
+        tabButtons.forEach(function(button) {
+            button.classList.remove('active');
+        });
+
+        var activePanel = document.getElementById('pane-' + tabTargetId);
+        if (activePanel) {
+            activePanel.classList.add('active');
+        }
+        
+        var activeButton = document.getElementById('btn-' + tabTargetId);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+
+    // 智慧型姓名比對與彈出視窗功能
+    function searchName() {
+        let input = document.getElementById("nameSearch").value.trim().replace(/\s+/g, ""); // 去除所有空格
+        
+        // 貼心常見錯字修正機制
+        if (input.includes("艷遇") || input.includes("李艷")) input = "呂燕玉";
+        if (input.includes("惠英") && (input.includes("ni") || input.includes("Ni"))) input = "倪惠英";
+        if (input === "李玉貴" || input === "呂學修") changeCustomTab("bus"); // 特殊切換測試
+
+        // 移除舊高亮
+        var activeHighlights = document.querySelectorAll(".highlight-search");
+        activeHighlights.forEach(function(el) {
+            el.classList.remove("highlight-search");
+        });
+
+        if (input === "") return;
+
+        // 1. 背景高亮比對
+        var nameCells = document.querySelectorAll(".name-cell");
+        nameCells.forEach(function(cell) {
+            if (cell) {
+                var text = cell.innerText || cell.textContent || "";
+                if (text && text.indexOf(input) !== -1) {
+                    cell.classList.add("highlight-search");
+                }
+            }
+        });
+
+        // 2. 智慧模糊比對：只要輸入長度大於等於2，且資料庫裡有包含該字，就自動抓取並彈窗
+        if (input.length >= 2) {
+            let matchedName = null;
+            
+            // 在資料庫中尋找有沒有包含這個字的人名
+            for (let key in tourDatabase) {
+                if (key.indexOf(input) !== -1) {
+                    matchedName = key;
+                    break;
+                }
+            }
+            
+            // 如果找到匹配的人名，就立刻組織資料並彈出視窗！
+            if (matchedName) {
+                const data = tourDatabase[matchedName];
+                document.getElementById("modalTargetName").innerText = "🌸 里民小幫手提示：" + matchedName + " 鄰長/志工";
+                
+                let infoHTML = `
+                    <div class="mb-3">您好，<span class="text-success">${matchedName}</span>！為您找到以下活動分配：</div>
+                    <div class="modal-info-box"><i class="fa-solid fa-bus text-success"></i> <strong>遊覽車座位：</strong><br>${data.bus}</div>
+                    <div class="modal-info-box"><i class="fa-solid fa-utensils text-primary"></i> <strong>餐廳桌次：</strong><br>${data.table}</div>
+                    <div class="modal-info-box"><i class="fa-solid fa-hotel text-danger"></i> <strong>英仕山莊房間：</strong><br>${data.room}</div>
+                `;
+                
+                document.getElementById("modalInfoContent").innerHTML = infoHTML;
+                
+                // 執行 Bootstrap Modal 彈出
+                var searchModalElement = document.getElementById('searchResultModal');
+                var myModal = bootstrap.Modal.getInstance(searchModalElement) || new bootstrap.Modal(searchModalElement);
+                myModal.show();
+                
+                // 自動幫忙切換到遊覽車頁面，方便長輩視覺對齊位置
+                changeCustomTab("bus");
+            }
+        }
+    }
+
+    function clearSearch() {
+        document.getElementById("nameSearch").value = "";
+        searchName();
+    }
+</script>
+
+</body>
+</html>
